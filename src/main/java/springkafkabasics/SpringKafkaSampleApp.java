@@ -26,9 +26,9 @@ public class SpringKafkaSampleApp implements CommandLineRunner
 
 			@Override
 			public void run(String... args) throws Exception {
-				Employee employee1 = new Employee("Emp1", "Dept1", "100");
-				Employee employee2 = new Employee("Emp2", "Dept2", "200");
-				Employee employee3 = new Employee("Emp3", "Dept3", "300");
+				Employee employee1 = new Employee("Emp1", "Dept1", "100",0,0,0);
+				Employee employee2 = new Employee("Emp2", "Dept2", "200",0,0,0);
+				Employee employee3 = new Employee("Emp3", "Dept3", "300",0,0,0);
 				kafkaProducer.send(employee1);
 				kafkaProducer.send(employee2);
 				kafkaProducer.send(employee3);

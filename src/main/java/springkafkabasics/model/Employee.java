@@ -10,11 +10,27 @@ public class Employee {
 	private int retryThreshold;
 	private int retryOn;
 	
+	private Employee() {}
 	
 	public Employee(String name, String department, String salary) {
+		super();
 		this.name = name;
 		this.department = department;
 		this.salary = salary;
+		this.retryCount = 0;
+		this.retryThreshold = 0;
+		this.retryOn = 0;
+	}
+	
+	
+	public Employee(String name, String department, String salary, int retryCount, int retryThreshold, int retryOn) {
+		super();
+		this.name = name;
+		this.department = department;
+		this.salary = salary;
+		this.retryCount = retryCount;
+		this.retryThreshold = retryThreshold;
+		this.retryOn = retryOn;
 	}
 	public String getName() {
 		return name;

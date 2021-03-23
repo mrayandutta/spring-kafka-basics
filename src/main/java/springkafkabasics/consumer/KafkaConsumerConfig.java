@@ -15,16 +15,19 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 
+import springkafkabasics.model.Employee;
+import springkafkabasics.model.EmployeeDeserializer;
+
 @EnableKafka
 @Configuration
 public class KafkaConsumerConfig {
 	Logger logger = LoggerFactory.getLogger(KafkaConsumerConfig.class.getName());
 	@Value(value = "${spring.kafka.bootstrap-servers}")
 	private String bootstrapAddress;
-	
+
 	@Value(value = "${spring.profiles.active}")
 	private String activeProfile;
-	
+
 	@Value(value = "${spring.kafka.consumer.group-id}")
 	private String consumerGroupId;
 
@@ -34,62 +37,66 @@ public class KafkaConsumerConfig {
 	private final String prodJaasCfg = String.format(jaasTemplate, "cyy3wd7r", "eAQPX5G290PkZ5CKo6drJKvqHqO6FA66");
 
 	@Bean
-	public ConsumerFactory<String, String> consumerFactory() {
+	public ConsumerFactory<String, Employee> consumerFactory() {
 		Map<String, Object> props = new HashMap<>();
 		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+
 		// allows a pool of processes to divide the work of consuming and processing
 		// records
-		props.put(ConsumerConfig.GROUP_ID_CONFIG,consumerGroupId);
+		props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
 		// automatically reset the offset to the earliest offset
 		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-		if(activeProfile.equalsIgnoreCase("remote"))
-		{
+		if (activeProfile.equalsIgnoreCase("remote")) {
 			props = addRemoteSpecificProperties(props);
+			props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 		}
 
-		
+		if (activeProfile.equalsIgnoreCase("local")) {
+			props.put("value.deserializer", "springkafkabasics.model.EmployeeDeserializer");
+			props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, EmployeeDeserializer.class);
+		}
+
 		return new DefaultKafkaConsumerFactory<>(props);
 	}
-	
+
 	@Bean
-	public ConsumerFactory<String, String> secondaryConsumerFactory() {
+	public ConsumerFactory<String, Employee> secondaryConsumerFactory() {
 		Map<String, Object> props = new HashMap<>();
 		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 		// allows a pool of processes to divide the work of consuming and processing
 		// records
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
 		// automatically reset the offset to the earliest offset
 		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
-		if(activeProfile.equalsIgnoreCase("remote"))
-		{
+		if (activeProfile.equalsIgnoreCase("remote")) {
 			props = addRemoteSpecificProperties(props);
+			props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+		}
+		if (activeProfile.equalsIgnoreCase("local")) {
+			props.put("value.deserializer", "springkafkabasics.model.EmployeeDeserializer");
+			props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, EmployeeDeserializer.class);
 		}
 		return new DefaultKafkaConsumerFactory<>(props);
 	}
 
 	@Bean
-	public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() 
-	{
-		ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+	public ConcurrentKafkaListenerContainerFactory<String, Employee> kafkaListenerContainerFactory() {
+		ConcurrentKafkaListenerContainerFactory<String, Employee> factory = new ConcurrentKafkaListenerContainerFactory<>();
 		factory.setConsumerFactory(consumerFactory());
 		return factory;
 	}
-	
+
 	@Bean
-	public ConcurrentKafkaListenerContainerFactory<String, String> secondaryKafkaListenerContainerFactory() 
-	{
-		ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+	public ConcurrentKafkaListenerContainerFactory<String, Employee> secondaryKafkaListenerContainerFactory() {
+		ConcurrentKafkaListenerContainerFactory<String, Employee> factory = new ConcurrentKafkaListenerContainerFactory<>();
 		factory.setConsumerFactory(secondaryConsumerFactory());
 		return factory;
 	}
-	
-	private Map<String, Object> addRemoteSpecificProperties(Map<String, Object> props) 
-	{
+
+	private Map<String, Object> addRemoteSpecificProperties(Map<String, Object> props) {
 		props.put("sasl.mechanism", SCRAM_SHA_256);
 		props.put("sasl.jaas.config", prodJaasCfg);
 		props.put("security.protocol", SASL_PROTOCOL);
