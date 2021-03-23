@@ -6,6 +6,11 @@ public class Employee {
 	private String salary;
 	
 	
+	private int retryCount;
+	private int retryThreshold;
+	private int retryOn;
+	
+	
 	public Employee(String name, String department, String salary) {
 		this.name = name;
 		this.department = department;
@@ -29,12 +34,29 @@ public class Employee {
 	public void setSalary(String salary) {
 		this.salary = salary;
 	}
+	
+	public int getRetryCount() {
+		return retryCount;
+	}
+	public void setRetryCount(int retryCount) {
+		this.retryCount = retryCount;
+	}
+	public int getRetryThreshold() {
+		return retryThreshold;
+	}
+	public void setRetryThreshold(int retryThreshold) {
+		this.retryThreshold = retryThreshold;
+	}
+	public int getRetryOn() {
+		return retryOn;
+	}
+	public void setRetryOn(int retryOn) {
+		this.retryOn = retryOn;
+	}
 	@Override
 	public String toString() {
-		return "Employee [name=" + name + ", department=" + department + ", salary=" + salary + "]";
+		return "Employee [name=" + name + ", department=" + department + ", salary=" + salary + ", retryCount="
+				+ retryCount + ", retryThreshold=" + retryThreshold + ", retryOn=" + retryOn + "]";
 	}
-	
-	
-	
 	
 }
